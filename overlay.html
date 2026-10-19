@@ -420,7 +420,7 @@ function showInfo(){
     $("listA").innerHTML=shown.goals.filter(g=>g.side==="a").map(li).join("")||"<li><span>–</span></li>";
     $("infoScore").textContent=shown.h+" – "+shown.a;
     $("infoHd").innerHTML="<span>"+esc((match.comp||"").toUpperCase())+"</span>"+(match.venue?"<span>·</span><span>"+esc(match.venue.toUpperCase())+"</span>":"");
-    mode("info");await wait(6000);mode("compact");await wait(850);
+    mode("info");await wait(DEMO?4000:6000);mode("compact");await wait(850);
   });
 }
 
@@ -564,23 +564,24 @@ async function poll(){
     if(m){
       const toKick=m.kickoff-Date.now();
       delay=m.state==="in"||m.state==="ht"?15000:(m.state==="pre"&&toKick<36e5)?30000:m.state==="post"?120000:300000;
-      if(DEMO)delay=demoDelay;
+      if(DEMO){await queue;delay=demoDelay;}
     }
   }catch(e){failures++;log("feed error: "+e.message);delay=Math.min(120000,15000*failures);}
   setTimeout(poll,delay);
 }
 
 /* ================= demo: a scripted Clásico played through the same pipeline ================= */
-const demoDelay=2500;let demoStep=0;
+const demoDelay=parseInt(Q.get("step"),10)||2500;let demoStep=0;
 const demoScript=[
-  {s:"pre"},{s:"in",c:"1'"},{s:"in",c:"9'"},
-  {s:"in",c:"23'",g:["h","Kylian Mbappé","23'"]},{s:"in",c:"31'",y:["a","Pedri","31'"]},
-  {s:"in",c:"41'",g:["a","Robert Lewandowski","41'"]},{s:"in",c:"45'+2'"},
-  {s:"ht"},{s:"ht"},{s:"in",c:"46'"},
-  {s:"in",c:"58'",g:["h","Vinícius Júnior","58'"]},{s:"in",c:"67'"},
-  {s:"in",c:"74'",r:["a","Gavi","74'"]},{s:"in",c:"82'"},
-  {s:"in",c:"90'+3'",g:["h","Jude Bellingham","90'+3'"]},{s:"in",c:"90'+5'"},
-  {s:"post"},{s:"post"},{s:"post"},{s:"post"}
+  {s:"pre"},{s:"in",c:"1'"},
+  {s:"in",c:"23'",g:["h","Kylian Mbappé","23'"]},
+  {s:"in",c:"31'",y:["a","Pedri","31'"]},
+  {s:"in",c:"38'",g:["a","Robert Lewandowski","38'"]},{s:"in",c:"45'+2'"},
+  {s:"ht"},{s:"in",c:"46'"},
+  {s:"in",c:"58'",g:["h","Vinícius Júnior","58'"]},
+  {s:"in",c:"64'",r:["a","Gavi","64'"]},
+  {s:"in",c:"90'+3'",g:["h","Jude Bellingham","90'+3'"]},
+  {s:"post"},{s:"post"}
 ];
 const demoEvents=[];
 let demoRound=0;
